@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ContentType, ContentTypeInfo, FieldConfig } from '../../types/qr';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
+import { useDebounce } from '../../hooks/useDebounce';
 
 interface ContentInputProps {
   contentType: ContentType;
@@ -120,6 +121,26 @@ const CONTENT_TYPES: ContentTypeInfo[] = [
       { name: 'androidUrl', label: 'Android 链接', type: 'url', required: false, placeholder: 'https://play.google.com/...' },
     ],
   },
+  {
+    type: 'payment',
+    label: '收款码',
+    icon: '💰',
+    fields: [
+      {
+        name: 'platform',
+        label: '收款方式',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'alipay', label: '支付宝' },
+          { value: 'wechat', label: '微信' },
+        ],
+      },
+      { name: 'link', label: '收款码链接', type: 'text', required: true, placeholder: '粘贴收款码链接' },
+      { name: 'amount', label: '金额（可选）', type: 'number', required: false, placeholder: '固定金额' },
+      { name: 'note', label: '备注（可选）', type: 'text', required: false, placeholder: '收款说明' },
+    ],
+  },
 ];
 
 export const ContentInput: React.FC<ContentInputProps> = ({
@@ -128,6 +149,22 @@ export const ContentInput: React.FC<ContentInputProps> = ({
   onContentTypeChange,
   onContentDataChange,
 }) => {
+  // 本地状态用于即时输入响应
+  const [localData, setLocalData] = useState(contentData);
+
+  // 对本地数据进行防抖处理
+  const debouncedData = useDebounce(localData, 300);
+
+  // 当防抖数据变化时通知父组件
+  useEffect(() => {
+    onContentDataChange(debouncedData);
+  }, [debouncedData, onContentDataChange]);
+
+  // 当类型变化时重置本地数据
+  useEffect(() => {
+    setLocalData({});
+  }, [contentType]);
+
   // 获取当前内容类型的配置
   const currentTypeConfig = CONTENT_TYPES.find((t) => t.type === contentType) || CONTENT_TYPES[0];
 
@@ -136,17 +173,14 @@ export const ContentInput: React.FC<ContentInputProps> = ({
     onContentTypeChange(type);
   };
 
-  // 处理字段值变化
+  // 本地字段更新函数
   const handleFieldChange = (fieldName: string, value: string) => {
-    onContentDataChange({
-      ...contentData,
-      [fieldName]: value,
-    });
+    setLocalData((prev) => ({ ...prev, [fieldName]: value }));
   };
 
   // 渲染单个字段
   const renderField = (field: FieldConfig) => {
-    const value = contentData[field.name] || '';
+    const value = localData[field.name] || '';
 
     switch (field.type) {
       case 'textarea':
