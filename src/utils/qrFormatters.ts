@@ -46,6 +46,13 @@ interface AppData {
   androidUrl: string;
 }
 
+interface PaymentData {
+  platform: 'alipay' | 'wechat';
+  link: string;
+  amount?: string;
+  note?: string;
+}
+
 export const formatText = (text: string): string => text;
 
 export const formatUrl = (url: string): string => {
@@ -115,4 +122,16 @@ export const formatApp = (data: AppData): string => {
     return data.iosUrl; // 默认返回 iOS 链接
   }
   return data.iosUrl || data.androidUrl || '';
+};
+
+export const formatPayment = (data: PaymentData): string => {
+  if (data.platform === 'alipay') {
+    // 支付宝：如果有金额，添加金额参数
+    if (data.amount) {
+      return `alipays://platformapi/startapp?appId=20000067&url=${encodeURIComponent(data.link)}&amount=${data.amount}`;
+    }
+    return data.link;
+  }
+  // 微信：直接使用原链接
+  return data.link;
 };

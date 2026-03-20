@@ -14,6 +14,7 @@ import {
   formatEvent,
   formatGeo,
   formatApp,
+  formatPayment,
 } from '../utils/qrFormatters';
 
 const formatContent = (type: ContentType, data: Record<string, string>): string => {
@@ -69,6 +70,13 @@ const formatContent = (type: ContentType, data: Record<string, string>): string 
       return formatApp({
         iosUrl: data.iosUrl || '',
         androidUrl: data.androidUrl || '',
+      });
+    case 'payment':
+      return formatPayment({
+        platform: (data.platform as 'alipay' | 'wechat') || 'alipay',
+        link: data.link || '',
+        amount: data.amount,
+        note: data.note,
       });
     default:
       return '';
