@@ -10,7 +10,8 @@ export type ContentType =
   | 'vcard'
   | 'event'
   | 'geo'
-  | 'app';
+  | 'app'
+  | 'payment';
 
 export type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H';
 
