@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { ContentType, QRState, DEFAULT_OPTIONS } from '../../types/qr';
+import { ContentType, QRState, DEFAULT_OPTIONS, QROptions } from '../../types/qr';
 import { useQRCode } from '../../hooks/useQRCode';
 import { ContentInput } from './ContentInput';
 import { StylePanel } from './StylePanel';
 import { QRPreview } from './QRPreview';
+import { HistoryPanel } from '../History';
+import { addRecord, type HistoryRecord } from '../../utils/historyStorage';
 
 export const QRGenerator: React.FC = () => {
   const [state, setState] = useState<QRState>({
@@ -12,7 +14,7 @@ export const QRGenerator: React.FC = () => {
     options: DEFAULT_OPTIONS,
   });
 
-  const { ref, download } = useQRCode(
+  const { ref, qrCode, download } = useQRCode(
     state.contentType,
     state.contentData,
     state.options
@@ -40,8 +42,40 @@ export const QRGenerator: React.FC = () => {
     }));
   };
 
+  const handleRestoreFromHistory = (record: HistoryRecord) => {
+    // 恢复内容类型和数据
+    handleContentTypeChange(record.contentType as ContentType);
+    handleContentDataChange(record.contentData);
+    // 恢复样式选项
+    handleOptionsChange(record.options as unknown as QROptions);
+  };
+
   const handleDownload = async (format: 'png' | 'svg' | 'jpeg', filename: string) => {
     await download(format, filename);
+
+    // 保存到历史记录
+    if (qrCode) {
+      const blob = await qrCode.getRawData('png');
+      if (blob) {
+        const previewImage = await blobToDataURL(blob as Blob);
+        addRecord({
+          contentType: state.contentType,
+          contentData: state.contentData,
+          options: state.options as unknown as Record<string, unknown>,
+          previewImage,
+        });
+      }
+    }
+  };
+
+  // Helper function to convert Blob to Data URL
+  const blobToDataURL = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   };
 
   return (
@@ -81,6 +115,9 @@ export const QRGenerator: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* 历史记录面板 */}
+      <HistoryPanel onRestore={handleRestoreFromHistory} />
     </div>
   );
 };
