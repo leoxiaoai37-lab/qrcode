@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   QROptions,
   DotsStyle,
@@ -10,6 +10,7 @@ import { Slider } from '../ui/Slider';
 import { Select } from '../ui/Select';
 import { ColorPicker } from '../ui/ColorPicker';
 import { Button } from '../ui/Button';
+import { useDebounce } from '../../hooks/useDebounce';
 
 interface StylePanelProps {
   options: QROptions;
@@ -62,9 +63,25 @@ export const StylePanel: React.FC<StylePanelProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 更新单个选项
+  // Add local state for options
+  const [localOptions, setLocalOptions] = useState(options);
+
+  // Debounce local options
+  const debouncedOptions = useDebounce(localOptions, 300);
+
+  // Notify parent when debounced options change
+  useEffect(() => {
+    onOptionsChange(debouncedOptions);
+  }, [debouncedOptions, onOptionsChange]);
+
+  // Sync local state when external options change (e.g., from history restore)
+  useEffect(() => {
+    setLocalOptions(options);
+  }, [options]);
+
+  // Local update function
   const updateOption = <K extends keyof QROptions>(key: K, value: QROptions[K]) => {
-    onOptionsChange({ ...options, [key]: value });
+    setLocalOptions(prev => ({ ...prev, [key]: value }));
   };
 
   // 处理 Logo 上传
@@ -146,7 +163,7 @@ export const StylePanel: React.FC<StylePanelProps> = ({
       <CollapsibleSection title="基础设置" defaultOpen={true}>
         <Slider
           label="尺寸"
-          value={options.size}
+          value={localOptions.size}
           min={128}
           max={1024}
           step={8}
@@ -155,7 +172,7 @@ export const StylePanel: React.FC<StylePanelProps> = ({
         />
         <Slider
           label="边距"
-          value={options.margin}
+          value={localOptions.margin}
           min={0}
           max={10}
           unit=""
@@ -163,7 +180,7 @@ export const StylePanel: React.FC<StylePanelProps> = ({
         />
         <Select
           label="容错级别"
-          value={options.errorCorrectionLevel}
+          value={localOptions.errorCorrectionLevel}
           options={errorCorrectionOptions}
           onChange={(e) => updateOption('errorCorrectionLevel', e.target.value as ErrorCorrectionLevel)}
         />
@@ -173,49 +190,49 @@ export const StylePanel: React.FC<StylePanelProps> = ({
       <CollapsibleSection title="颜色设置" defaultOpen={true}>
         <Select
           label="颜色类型"
-          value={options.dotsColorType}
+          value={localOptions.dotsColorType}
           options={colorTypeOptions}
           onChange={(e) => updateOption('dotsColorType', e.target.value as 'solid' | 'gradient')}
         />
 
-        {options.dotsColorType === 'solid' ? (
+        {localOptions.dotsColorType === 'solid' ? (
           <ColorPicker
             label="点颜色"
-            value={options.dotsColor}
+            value={localOptions.dotsColor}
             onChange={(value) => updateOption('dotsColor', value)}
           />
         ) : (
           <>
             <Select
               label="渐变类型"
-              value={options.gradient?.type || 'linear'}
+              value={localOptions.gradient?.type || 'linear'}
               options={gradientTypeOptions}
               onChange={(e) =>
                 updateOption('gradient', {
                   type: e.target.value as GradientType,
-                  startColor: options.gradient?.startColor || options.dotsColor,
-                  endColor: options.gradient?.endColor || '#000000',
+                  startColor: localOptions.gradient?.startColor || localOptions.dotsColor,
+                  endColor: localOptions.gradient?.endColor || '#000000',
                 })
               }
             />
             <ColorPicker
               label="起始颜色"
-              value={options.gradient?.startColor || options.dotsColor}
+              value={localOptions.gradient?.startColor || localOptions.dotsColor}
               onChange={(value) =>
                 updateOption('gradient', {
-                  type: options.gradient?.type || 'linear',
+                  type: localOptions.gradient?.type || 'linear',
                   startColor: value,
-                  endColor: options.gradient?.endColor || '#000000',
+                  endColor: localOptions.gradient?.endColor || '#000000',
                 })
               }
             />
             <ColorPicker
               label="结束颜色"
-              value={options.gradient?.endColor || '#000000'}
+              value={localOptions.gradient?.endColor || '#000000'}
               onChange={(value) =>
                 updateOption('gradient', {
-                  type: options.gradient?.type || 'linear',
-                  startColor: options.gradient?.startColor || options.dotsColor,
+                  type: localOptions.gradient?.type || 'linear',
+                  startColor: localOptions.gradient?.startColor || localOptions.dotsColor,
                   endColor: value,
                 })
               }
@@ -225,7 +242,7 @@ export const StylePanel: React.FC<StylePanelProps> = ({
 
         <ColorPicker
           label="背景颜色"
-          value={options.backgroundColor}
+          value={localOptions.backgroundColor}
           onChange={(value) => updateOption('backgroundColor', value)}
         />
       </CollapsibleSection>
@@ -234,7 +251,7 @@ export const StylePanel: React.FC<StylePanelProps> = ({
       <CollapsibleSection title="点样式" defaultOpen={false}>
         <Select
           label="点样式"
-          value={options.dotsStyle}
+          value={localOptions.dotsStyle}
           options={dotsStyleOptions}
           onChange={(e) => updateOption('dotsStyle', e.target.value as DotsStyle)}
         />
@@ -244,13 +261,13 @@ export const StylePanel: React.FC<StylePanelProps> = ({
       <CollapsibleSection title="码眼样式" defaultOpen={false}>
         <Select
           label="外码眼样式"
-          value={options.cornersSquareStyle}
+          value={localOptions.cornersSquareStyle}
           options={cornersStyleOptions}
           onChange={(e) => updateOption('cornersSquareStyle', e.target.value as CornersStyle)}
         />
         <Select
           label="内码眼样式"
-          value={options.cornersDotStyle}
+          value={localOptions.cornersDotStyle}
           options={cornersStyleOptions}
           onChange={(e) => updateOption('cornersDotStyle', e.target.value as CornersStyle)}
         />
@@ -274,7 +291,7 @@ export const StylePanel: React.FC<StylePanelProps> = ({
             >
               上传 Logo
             </Button>
-            {options.logoImage && (
+            {localOptions.logoImage && (
               <Button
                 variant="secondary"
                 size="sm"
@@ -285,14 +302,14 @@ export const StylePanel: React.FC<StylePanelProps> = ({
             )}
           </div>
 
-          {options.logoImage && (
+          {localOptions.logoImage && (
             <>
               <p className="text-xs text-gray-500">
                 支持 PNG、JPG、SVG，最大 2MB
               </p>
               <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
                 <img
-                  src={options.logoImage}
+                  src={localOptions.logoImage}
                   alt="Logo 预览"
                   className="w-12 h-12 object-contain rounded"
                 />
@@ -303,7 +320,7 @@ export const StylePanel: React.FC<StylePanelProps> = ({
 
           <Slider
             label="Logo 大小"
-            value={options.logoSize}
+            value={localOptions.logoSize}
             min={10}
             max={40}
             unit="%"
@@ -312,7 +329,7 @@ export const StylePanel: React.FC<StylePanelProps> = ({
 
           <Slider
             label="Logo 边距"
-            value={options.logoMargin}
+            value={localOptions.logoMargin}
             min={0}
             max={10}
             unit=""
@@ -321,7 +338,7 @@ export const StylePanel: React.FC<StylePanelProps> = ({
 
           <ColorPicker
             label="Logo 背景色"
-            value={options.logoBackgroundColor}
+            value={localOptions.logoBackgroundColor}
             onChange={(value) => updateOption('logoBackgroundColor', value)}
           />
         </div>
