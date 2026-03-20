@@ -1,6 +1,13 @@
 import React from 'react';
 
-export const Header: React.FC = () => {
+export type TabType = 'single' | 'batch';
+
+interface HeaderProps {
+  activeTab?: TabType;
+  onTabChange?: (tab: TabType) => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ activeTab = 'single', onTabChange }) => {
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -23,6 +30,32 @@ export const Header: React.FC = () => {
             </div>
             <h1 className="text-xl font-bold text-gray-900">QR Code Toolbox</h1>
           </div>
+
+          {/* Tab Navigation */}
+          {onTabChange && (
+            <nav className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+              <button
+                onClick={() => onTabChange('single')}
+                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'single'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                单个生成
+              </button>
+              <button
+                onClick={() => onTabChange('batch')}
+                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'batch'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                批量生成
+              </button>
+            </nav>
+          )}
         </div>
       </div>
     </header>
