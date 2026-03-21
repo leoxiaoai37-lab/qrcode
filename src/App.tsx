@@ -8,11 +8,19 @@ function App() {
   const [activeTab, setActiveTab] = useState<TabType>('single');
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col relative">
+      {/* Background gradient mesh */}
+      <div className="fixed inset-0 pointer-events-none" style={{ background: 'var(--gradient-mesh)' }} />
+
+      {/* Noise overlay for texture */}
+      <div className="noise-overlay" />
+
       <Header activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="flex-1">
+
+      <main className="flex-1 relative z-10">
         {activeTab === 'single' ? <QRGenerator /> : <BatchGenerator />}
       </main>
+
       <Footer />
     </div>
   );

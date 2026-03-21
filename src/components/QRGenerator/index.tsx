@@ -24,7 +24,7 @@ export const QRGenerator: React.FC = () => {
     setState((prev) => ({
       ...prev,
       contentType: type,
-      contentData: {}, // Clear data when type changes
+      contentData: {},
     }));
   };
 
@@ -43,17 +43,14 @@ export const QRGenerator: React.FC = () => {
   };
 
   const handleRestoreFromHistory = (record: HistoryRecord) => {
-    // 恢复内容类型和数据
     handleContentTypeChange(record.contentType as ContentType);
     handleContentDataChange(record.contentData);
-    // 恢复样式选项
     handleOptionsChange(record.options as unknown as QROptions);
   };
 
   const handleDownload = async (format: 'png' | 'svg' | 'jpeg', filename: string) => {
     await download(format, filename);
 
-    // 保存到历史记录
     if (qrCode) {
       const blob = await qrCode.getRawData('png');
       if (blob) {
@@ -68,7 +65,6 @@ export const QRGenerator: React.FC = () => {
     }
   };
 
-  // Helper function to convert Blob to Data URL
   const blobToDataURL = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -80,12 +76,15 @@ export const QRGenerator: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Left: Input area */}
-        <div className="space-y-6">
+        <div className="lg:col-span-3 space-y-6">
           {/* Content Input */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">内容</h2>
+          <div className="glass-card p-6 rounded-2xl shadow-card animate-slide-up">
+            <h2 className="text-base font-semibold text-brand-text-primary mb-4 flex items-center gap-2">
+              <span className="w-1 h-5 bg-brand-accent rounded-full" />
+              内容
+            </h2>
             <ContentInput
               contentType={state.contentType}
               contentData={state.contentData}
@@ -95,8 +94,11 @@ export const QRGenerator: React.FC = () => {
           </div>
 
           {/* Style Panel */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">样式</h2>
+          <div className="glass-card p-6 rounded-2xl shadow-card animate-slide-up stagger-2">
+            <h2 className="text-base font-semibold text-brand-text-primary mb-4 flex items-center gap-2">
+              <span className="w-1 h-5 bg-purple-400 rounded-full" />
+              样式
+            </h2>
             <StylePanel
               options={state.options}
               onOptionsChange={handleOptionsChange}
@@ -105,19 +107,25 @@ export const QRGenerator: React.FC = () => {
         </div>
 
         {/* Right: Preview area */}
-        <div className="lg:sticky lg:top-8 h-fit">
-          <div className="bg-gray-50 p-6 rounded-xl">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">预览</h2>
-            <QRPreview
-              qrRef={ref as React.RefObject<HTMLDivElement>}
-              onDownload={handleDownload}
-            />
+        <div className="lg:col-span-2">
+          <div className="lg:sticky lg:top-24 h-fit space-y-6">
+            {/* Preview */}
+            <div className="glass-card p-6 rounded-2xl shadow-card animate-slide-up stagger-3">
+              <h2 className="text-base font-semibold text-brand-text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-5 bg-green-400 rounded-full" />
+                预览
+              </h2>
+              <QRPreview
+                qrRef={ref as React.RefObject<HTMLDivElement>}
+                onDownload={handleDownload}
+              />
+            </div>
+
+            {/* History */}
+            <HistoryPanel onRestore={handleRestoreFromHistory} />
           </div>
         </div>
       </div>
-
-      {/* 历史记录面板 */}
-      <HistoryPanel onRestore={handleRestoreFromHistory} />
     </div>
   );
 };

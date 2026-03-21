@@ -18,11 +18,17 @@ export const QRPreview: React.FC<QRPreviewProps> = ({ qrRef, onDownload }) => {
   return (
     <div className="flex flex-col items-center space-y-6">
       {/* QR Code Preview */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-        <div
-          ref={qrRef}
-          className="flex items-center justify-center min-w-[200px] min-h-[200px]"
-        />
+      <div className="relative group">
+        {/* Glow effect behind QR */}
+        <div className="absolute inset-0 bg-brand-accent/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        {/* QR container */}
+        <div className="relative glass-card p-6 rounded-2xl shadow-card">
+          <div
+            ref={qrRef}
+            className="qr-container flex items-center justify-center min-w-[200px] min-h-[200px]"
+          />
+        </div>
       </div>
 
       {/* Custom filename */}
@@ -31,27 +37,55 @@ export const QRPreview: React.FC<QRPreviewProps> = ({ qrRef, onDownload }) => {
           label="文件名（可选）"
           value={customFilename}
           onChange={(e) => setCustomFilename(e.target.value)}
-          placeholder="自定义文件名"
+          placeholder="qrcode_20240101"
         />
       </div>
 
       {/* Download buttons */}
-      <div className="flex flex-col items-center gap-3">
-        <p className="text-sm font-medium text-gray-700">下载二维码</p>
+      <div className="flex flex-col items-center gap-4 w-full">
+        <p className="text-sm font-medium text-brand-text-secondary">下载二维码</p>
         <div className="flex gap-3">
           <Button onClick={() => handleDownload('png')} variant="primary">
-            PNG
+            <span className="flex items-center gap-2">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              PNG
+            </span>
           </Button>
           <Button onClick={() => handleDownload('svg')} variant="secondary">
-            SVG
+            <span className="flex items-center gap-2">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              SVG
+            </span>
           </Button>
           <Button onClick={() => handleDownload('jpeg')} variant="secondary">
-            JPG
+            <span className="flex items-center gap-2">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              JPG
+            </span>
           </Button>
         </div>
-        <p className="text-xs text-gray-500">
-          PNG - 通用格式 | SVG - 矢量图 | JPG - 小文件
-        </p>
+        <div className="flex items-center gap-3 text-[11px] text-brand-text-muted">
+          <span className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-accent" />
+            PNG - 通用格式
+          </span>
+          <span className="w-px h-3 bg-brand-border" />
+          <span className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+            SVG - 矢量图
+          </span>
+          <span className="w-px h-3 bg-brand-border" />
+          <span className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+            JPG - 小文件
+          </span>
+        </div>
       </div>
     </div>
   );

@@ -9,50 +9,94 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ activeTab = 'single', onTabChange }) => {
   return (
-    <header className="bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+    <header className="sticky top-0 z-50 border-b border-brand-border bg-brand-bg-secondary/80 backdrop-blur-xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center gap-3 group">
+            <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-brand-accent to-purple-500 flex items-center justify-center shadow-glow transition-all duration-300 group-hover:shadow-[0_0_25px_-5px_rgba(34,211,238,0.5)]">
+              {/* QR Code Icon */}
               <svg
-                className="w-5 h-5 text-white"
+                className="w-6 h-6 text-white"
+                viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                viewBox="0 0 24 24"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
-                />
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="3" height="3" />
+                <rect x="18" y="14" width="3" height="3" />
+                <rect x="14" y="18" width="3" height="3" />
+                <rect x="18" y="18" width="3" height="3" />
               </svg>
             </div>
-            <h1 className="text-xl font-bold text-gray-900">QR Code Toolbox</h1>
+            <div className="flex flex-col">
+              <h1 className="text-lg font-bold tracking-tight text-brand-text-primary">
+                QR Toolbox
+              </h1>
+              <span className="text-[10px] text-brand-text-muted font-mono tracking-wider uppercase">
+                Generator
+              </span>
+            </div>
           </div>
 
           {/* Tab Navigation */}
           {onTabChange && (
-            <nav className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+            <nav className="flex items-center p-1 rounded-xl bg-brand-bg-tertiary/50 border border-brand-border">
               <button
                 onClick={() => onTabChange('single')}
-                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  activeTab === 'single'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className={`
+                  relative px-5 py-2 text-sm font-medium rounded-lg transition-all duration-300
+                  ${activeTab === 'single'
+                    ? 'text-brand-bg-primary'
+                    : 'text-brand-text-secondary hover:text-brand-text-primary'
+                  }
+                `}
               >
-                单个生成
+                {activeTab === 'single' && (
+                  <span className="absolute inset-0 rounded-lg bg-brand-accent animate-scale-in" />
+                )}
+                <span className="relative flex items-center gap-2">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                    <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                    <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                    <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                  </svg>
+                  单个生成
+                </span>
               </button>
               <button
                 onClick={() => onTabChange('batch')}
-                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  activeTab === 'batch'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className={`
+                  relative px-5 py-2 text-sm font-medium rounded-lg transition-all duration-300
+                  ${activeTab === 'batch'
+                    ? 'text-brand-bg-primary'
+                    : 'text-brand-text-secondary hover:text-brand-text-primary'
+                  }
+                `}
               >
-                批量生成
+                {activeTab === 'batch' && (
+                  <span className="absolute inset-0 rounded-lg bg-brand-accent animate-scale-in" />
+                )}
+                <span className="relative flex items-center gap-2">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="2" y="2" width="5" height="5" rx="1" />
+                    <rect x="9.5" y="2" width="5" height="5" rx="1" />
+                    <rect x="17" y="2" width="5" height="5" rx="1" />
+                    <rect x="2" y="9.5" width="5" height="5" rx="1" />
+                    <rect x="9.5" y="9.5" width="5" height="5" rx="1" />
+                    <rect x="17" y="9.5" width="5" height="5" rx="1" />
+                    <rect x="2" y="17" width="5" height="5" rx="1" />
+                    <rect x="9.5" y="17" width="5" height="5" rx="1" />
+                    <rect x="17" y="17" width="5" height="5" rx="1" />
+                  </svg>
+                  批量生成
+                </span>
               </button>
             </nav>
           )}

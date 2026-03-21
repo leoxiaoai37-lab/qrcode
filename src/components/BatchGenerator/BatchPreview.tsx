@@ -15,7 +15,6 @@ export const BatchPreview: React.FC<BatchPreviewProps> = ({ items, options }) =>
   const previewRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   useEffect(() => {
-    // Generate preview for each item
     items.forEach(item => {
       const container = previewRefs.current.get(item.id);
       if (container && item.content) {
@@ -52,7 +51,6 @@ export const BatchPreview: React.FC<BatchPreviewProps> = ({ items, options }) =>
           backgroundOptions: { color: options.backgroundColor },
         });
 
-        // Get raw data as blob and convert to data URL
         const blob = await qr.getRawData('png');
         if (blob) {
           const dataUrl = await blobToDataURL(blob as Blob);
@@ -69,7 +67,6 @@ export const BatchPreview: React.FC<BatchPreviewProps> = ({ items, options }) =>
     }
   };
 
-  // Helper function to convert Blob to Data URL
   const blobToDataURL = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -83,23 +80,75 @@ export const BatchPreview: React.FC<BatchPreviewProps> = ({ items, options }) =>
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-2 max-h-96 overflow-y-auto">
+      {/* Preview grid */}
+      <div className="
+        grid grid-cols-3 gap-3 max-h-80 overflow-y-auto
+        pr-1
+        [&::-webkit-scrollbar]:w-1.5
+        [&::-webkit-scrollbar-track]:bg-transparent
+        [&::-webkit-scrollbar-thumb]:bg-brand-bg-elevated
+        [&::-webkit-scrollbar-thumb]:rounded-full
+      ">
+        {validItems.length === 0 && (
+          <div className="col-span-3 py-8 text-center">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-brand-bg-tertiary flex items-center justify-center mb-3">
+              <svg className="w-6 h-6 text-brand-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
+              </svg>
+            </div>
+            <p className="text-sm text-brand-text-muted">
+              添加内容后预览二维码
+            </p>
+          </div>
+        )}
         {validItems.map(item => (
           <div
             key={item.id}
             ref={el => { if (el) previewRefs.current.set(item.id, el); }}
-            className="aspect-square bg-white border rounded flex items-center justify-center"
+            className="
+              aspect-square glass-card-light
+              rounded-xl flex items-center justify-center
+              transition-all duration-200
+              hover:border-brand-accent/30
+            "
           />
         ))}
       </div>
 
+      {/* Download button */}
       <Button
         onClick={handleDownloadAll}
         disabled={validItems.length === 0 || isGenerating}
         className="w-full"
+        size="lg"
       >
-        {isGenerating ? '生成中...' : `下载全部 (${validItems.length})`}
+        <span className="flex items-center justify-center gap-2">
+          {isGenerating ? (
+            <>
+              <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              生成中...
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              下载全部 ({validItems.length})
+            </>
+          )}
+        </span>
       </Button>
+
+      {/* Info */}
+      <p className="text-xs text-brand-text-muted text-center">
+        下载为 ZIP 压缩包，包含所有二维码 PNG 图片
+      </p>
     </div>
   );
 };
