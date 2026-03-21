@@ -38,6 +38,10 @@ export const addRecord = (record: Omit<HistoryRecord, 'id' | 'createdAt'>): Hist
   }
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+
+  // 触发自定义事件通知历史记录更新
+  window.dispatchEvent(new CustomEvent('qr-history-update'));
+
   return newRecord;
 };
 
@@ -45,6 +49,9 @@ export const deleteRecord = (id: string): void => {
   const history = getHistory();
   const filtered = history.filter(r => r.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+
+  // 触发自定义事件通知历史记录更新
+  window.dispatchEvent(new CustomEvent('qr-history-update'));
 };
 
 export const clearHistory = (): void => {

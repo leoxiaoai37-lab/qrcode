@@ -18,7 +18,17 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({ onRestore }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    setRecords(getHistory());
+    const refreshHistory = () => setRecords(getHistory());
+
+    // 初始加载
+    refreshHistory();
+
+    // 监听历史记录更新事件
+    window.addEventListener('qr-history-update', refreshHistory);
+
+    return () => {
+      window.removeEventListener('qr-history-update', refreshHistory);
+    };
   }, []);
 
   const handleDelete = (id: string) => {
@@ -112,8 +122,4 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({ onRestore }) => {
       </div>
     </div>
   );
-};
-
-export const useHistoryRefresh = () => {
-  return () => {};
 };
