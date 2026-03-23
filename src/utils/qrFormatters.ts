@@ -86,14 +86,14 @@ export const formatVCard = (data: VCardData): string => {
   const lines = [
     'BEGIN:VCARD',
     'VERSION:3.0',
-    `N:${data.lastName};${data.firstName}`,
-    `FN:${data.firstName} ${data.lastName}`,
+    `N;CHARSET=utf-8:${data.lastName};${data.firstName}`,
+    `FN;CHARSET=utf-8:${data.firstName} ${data.lastName}`,
   ];
   if (data.phone) lines.push(`TEL:${data.phone}`);
   if (data.email) lines.push(`EMAIL:${data.email}`);
-  if (data.company) lines.push(`ORG:${data.company}`);
-  if (data.title) lines.push(`TITLE:${data.title}`);
-  if (data.address) lines.push(`ADR:;;${data.address};;;`);
+  if (data.company) lines.push(`ORG;CHARSET=utf-8:${data.company}`);
+  if (data.title) lines.push(`TITLE;CHARSET=utf-8:${data.title}`);
+  if (data.address) lines.push(`ADR;CHARSET=utf-8:;;${data.address};;;`);
   if (data.website) lines.push(`URL:${data.website}`);
   lines.push('END:VCARD');
   return lines.join('\n');
@@ -102,12 +102,12 @@ export const formatVCard = (data: VCardData): string => {
 export const formatEvent = (data: EventData): string => {
   const lines = [
     'BEGIN:VEVENT',
-    `SUMMARY:${data.title}`,
+    `SUMMARY;CHARSET=utf-8:${data.title}`,
   ];
-  if (data.location) lines.push(`LOCATION:${data.location}`);
+  if (data.location) lines.push(`LOCATION;CHARSET=utf-8:${data.location}`);
   if (data.startTime) lines.push(`DTSTART:${data.startTime.replace(/[-:]/g, '').replace('T', 'T')}`);
   if (data.endTime) lines.push(`DTEND:${data.endTime.replace(/[-:]/g, '').replace('T', 'T')}`);
-  if (data.description) lines.push(`DESCRIPTION:${data.description}`);
+  if (data.description) lines.push(`DESCRIPTION;CHARSET=utf-8:${data.description}`);
   lines.push('END:VEVENT');
   return lines.join('\n');
 };

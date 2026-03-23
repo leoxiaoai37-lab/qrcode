@@ -19,10 +19,22 @@ export const BatchPreview: React.FC<BatchPreviewProps> = ({ items, options }) =>
       const container = previewRefs.current.get(item.id);
       if (container && item.content) {
         container.innerHTML = '';
+        
+        let encodedContent = item.content;
+        try {
+          encodedContent = unescape(encodeURIComponent(item.content));
+        } catch (e) {
+          console.error('Error encoding batch item content:', e);
+        }
+
         const qr = new QRCodeStyling({
           width: 100,
           height: 100,
-          data: item.content,
+          data: encodedContent,
+          qrOptions: {
+            typeNumber: 0,
+            mode: 'Byte',
+          },
           dotsOptions: { color: options.dotsColor, type: options.dotsStyle },
           backgroundOptions: { color: options.backgroundColor },
         });
@@ -42,11 +54,23 @@ export const BatchPreview: React.FC<BatchPreviewProps> = ({ items, options }) =>
       for (let i = 0; i < validItems.length; i++) {
         const item = validItems[i];
 
+        let encodedContent = item.content;
+        try {
+          encodedContent = unescape(encodeURIComponent(item.content));
+        } catch (e) {
+          console.error('Error encoding batch download content:', e);
+        }
+
         const qr = new QRCodeStyling({
           width: options.size,
           height: options.size,
           type: 'canvas',
-          data: item.content,
+          data: encodedContent,
+          qrOptions: {
+            typeNumber: 0,
+            mode: 'Byte',
+            errorCorrectionLevel: options.errorCorrectionLevel,
+          },
           dotsOptions: { color: options.dotsColor, type: options.dotsStyle },
           backgroundOptions: { color: options.backgroundColor },
         });

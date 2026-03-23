@@ -98,6 +98,11 @@ export const useQRCode = (
       height: options.size,
       type: 'svg',
       data: 'https://example.com',
+      qrOptions: {
+        typeNumber: 0,
+        mode: 'Byte',
+        errorCorrectionLevel: options.errorCorrectionLevel,
+      },
       dotsOptions: {
         color: options.dotsColor,
         type: options.dotsStyle,
@@ -109,19 +114,20 @@ export const useQRCode = (
     setQrCode(qr);
   }, []);
 
-  // Update QR code content
+  // Update QR code content and style
   useEffect(() => {
     if (qrCode) {
-      const content = formatContent(contentType, contentData);
+      let content = formatContent(contentType, contentData);
+      
+      // Fix for Chinese characters: encode to UTF-8 bytes string
       if (content) {
-        qrCode.update({ data: content });
+        try {
+          content = unescape(encodeURIComponent(content));
+        } catch (e) {
+          console.error('Error encoding content for QR code:', e);
+        }
       }
-    }
-  }, [qrCode, contentType, contentData]);
 
-  // Update QR code style
-  useEffect(() => {
-    if (qrCode) {
       const dotsOptions: Record<string, unknown> = {
         type: options.dotsStyle,
       };
@@ -139,10 +145,13 @@ export const useQRCode = (
       }
 
       qrCode.update({
+        data: content || undefined,
         width: options.size,
         height: options.size,
         margin: options.margin,
         qrOptions: {
+          typeNumber: 0,
+          mode: 'Byte',
           errorCorrectionLevel: options.errorCorrectionLevel,
         },
         dotsOptions,
@@ -163,7 +172,7 @@ export const useQRCode = (
         image: options.logoImage || undefined,
       });
     }
-  }, [qrCode, options]);
+  }, [qrCode, contentType, contentData, options]);
 
   // Mount to DOM
   useEffect(() => {
